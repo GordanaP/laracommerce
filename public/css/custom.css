@@ -1,0 +1,9 @@
+body {background: #fff}
+
+.table-shopping-cart .column-1 { width: 150px }
+.table-shopping-cart .column-2 { width: 200px }
+.table-shopping-cart .column-3 { width: 350px }
+.table-shopping-cart .column-4 { width: 200px }
+.table-shopping-cart .column-5 { width: 250px }
+
+.active {color:#e65540}
