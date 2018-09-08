@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMigrationProductables extends Migration
+class CreateProductSizeTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,18 +13,18 @@ class CreateMigrationProductables extends Migration
      */
     public function up()
     {
-        Schema::create('productables', function (Blueprint $table) {
+        Schema::create('product_size', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->integer('product_id')->unsigned();
+            $table->unsignedInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
 
-            $table->unsignedInteger('productable_id'); // color/size id
-            $table->string('productable_type'); // color/size model
+            $table->unsignedInteger('size_id');
+            $table->foreign('size_id')->references('id')->on('sizes')->onDelete('cascade');
 
-            $table->timestamps();
+            $table->unsignedInteger('color_id');
+            $table->foreign('color_id')->references('id')->on('colors')->onDelete('cascade');
 
-            $table->unique(['product_id', 'productable_id', 'productable_type']);
         });
     }
 
@@ -35,6 +35,6 @@ class CreateMigrationProductables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('productables');
+        Schema::dropIfExists('product_size');
     }
 }

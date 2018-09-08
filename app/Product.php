@@ -24,14 +24,9 @@ class Product extends Model implements Buyable
         return $this->belongsToMany(Category::class);
     }
 
-    public function colors()
-    {
-        return $this->morphedByMany(Color::class, 'productable'); //belongsToMany
-    }
-
     public function sizes()
     {
-        return $this->morphedByMany(Size::class, 'productable'); //belongsToMany
+        return $this->belongsToMany(Size::class)->as('feature')->withPivot('color_id');
     }
 
     /**

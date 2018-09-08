@@ -53,12 +53,18 @@ class ProductController extends Controller
      */
     public function show(Product $product)
     {
+        if(request()->ajax()) {
+
+            return response([
+                'product' => $product->load('sizes'),
+            ]);
+        }
+
         $relatedProducts = Product::relatedProducts('slug', $product->slug);
 
         $colors = Color::all();
-        $sizes = Size::all();
 
-        return view('products.show', compact('product', 'relatedProducts', 'colors', 'sizes'));
+        return view('products.show', compact('product', 'relatedProducts', 'colors'));
     }
 
     /**

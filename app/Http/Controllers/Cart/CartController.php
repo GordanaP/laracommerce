@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers\Cart;
 
-use App\Color;
 use App\Http\Controllers\Controller;
 use App\Product;
-use App\Size;
 use App\Traits\Cart\HasProduct;
-use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
@@ -43,20 +40,24 @@ class CartController extends Controller
      */
     public function store(Request $request, Product $product)
     {
-        if($this->itemIsNotInTheCart($product, config('constants.wishcart')))
+        if ($this->cartHasDuplicates($product))
         {
-            $size = Size::find($request->size_id);
-            $color = Color::find($request->color_id);
+            return redirect()->route('carts.show');
+        }
+        else
+        {
+            $item = $this->addToCart($product, 'default', $request);
 
-            Cart::instance('default')->add($product, $request->quantity, [
-                'size_id' => $size->id,
-                'color_id' => $color->id,
-            ]);
+            if($this->itemIsInTheCart($item, config('constants.wishcart')))
+            {
+                $rowId = $this->findCartItemId($item, config('constants.wishcart'));
+
+                $this->removeFromCart($rowId, config('constants.wishcart'));
+            }
 
             return back();
         }
 
-        return redirect()->route('carts.show');
     }
 
     /**
@@ -92,7 +93,7 @@ class CartController extends Controller
      */
     public function update(Request $request, $rowId)
     {
-        Cart::update($rowId, $request->quantity);
+        $this->updateCart($rowId, $request->quantity);
 
         return response([
             'success' => true
@@ -120,14 +121,7 @@ class CartController extends Controller
      */
     public function switchToWishList($rowId)
     {
-        $item = $this->getCartItem($rowId);
-        $product = Product::find($item->id);
-        $this->removeFromCart($rowId);
-
-        if($this->addToCart($product, config('constants.wishcart')) )
-        {
-            return back();
-        }
+        $this->switchToCart($rowId, config('constants.wishcart'));
 
         return redirect()->route('wishlist.show');
     }

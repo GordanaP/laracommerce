@@ -28,14 +28,7 @@
             </div>
         </form>
 
-        <form action="{{ route('wishlist.switchtocart', $item->rowId) }}" method="POST">
-            @csrf
+        <a href="{{ route('products.show', $product) }}">Add To Cart</a>
 
-            <div class="btn-removecart-product mt-2">
-                <button type="submit" class="text-red">
-                    Add to cart
-                </button>
-            </div>
-        </form>
     </td>
 </tr>

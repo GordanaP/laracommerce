@@ -2,102 +2,221 @@
 
 namespace App\Traits\Cart;
 
+use App\Product;
 use Gloudemans\Shoppingcart\Facades\Cart;
 
 trait HasProduct
 {
     /**
-     * The cart has no duplicate products.
+     * Add a product to the cart.
      *
-     * @param  string $cartName
-     * @param  \App\Product $product
-     * @return boolean
+     * @param \App\Product  $product
+     * @param string  $cart
+     * @param array $data
+     * @return  object
      */
-    protected function cartHasNoDuplicates($product, $cartName=NULL)
+    protected function addToCart($product, $cart, $data=null)
     {
-        if($cartName)
+        if ($data)
         {
-            $duplicates = Cart::instance($cartName)->search(function ($cartItem, $rowId) use($product) {
-                return $cartItem->id === $product->id;
-            });
+            $item = Cart::instance($cart)->add($product, $data['quantity'], [
+                'size_id' => $data['size_id'],
+                'color_id' => $data['color_id'],
+            ]);
         }
         else
         {
-            $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
-                return $cartItem->id === $product->id;
-            });
+            $item = Cart::instance($cart)->add($product, 1);
         }
 
-        return $duplicates->isEmpty();
+        return $item;
     }
 
     /**
-     * Item is not in any cart.
+     * Update the default cart.
      *
-     * @param  \App\Product $product
-     * @param  string $cartName
-     * @return boolean
-     */
-    protected function itemIsNotInTheCart($product, $cartName)
-    {
-        return $this->cartHasNoDuplicates($product) && $this->cartHasNoDuplicates($product, $cartName);
-    }
-
-    /**
-     * Add the product to the cart
-     *
-     * @param string  $cartName
-     * @param \App\Product  $product
-     * @param integer $quantity
-     * @return  void
-     */
-    protected function addToCart($product, $cartName=NULL, $quantity = 1)
-    {
-        Cart::instance($cartName)->add($product, $quantity);
-    }
-
-    /**
-     * Remove the product from the cart
-     *
-     * @param  string $cartName
      * @param  int $rowId
+     * @param  int $quantity
      * @return void
      */
-    protected function removeFromCart($rowId, $cartName=NULL)
+    protected function updateCart($rowId, $quantity)
     {
-        Cart::instance($cartName)->remove($rowId);
+        Cart::update($rowId, $quantity);
     }
 
     /**
-     * Get all the products in the cart.
+     * Get all cart items.
      *
-     * @param  string $cartName
+     * @param  string $cart
      * @return array
      */
-    protected function getCartContent($cartName=NULL)
+    protected function getCartContent($cart=NULL)
     {
-        return Cart::instance($cartName)->content();
+        return Cart::instance($cart)->content();
     }
 
     /**
-     * Get a specific item from the cart.
+     * Get a specific cart item.
      *
-     * @param  string $cartName
-     * @return array;
+     * @param  int $rowId
+     * @param  string $cart
+     * @return object;
      */
-    protected function getCartItem($rowId, $cartName=NULL)
+    protected function getCartItem($rowId, $cart=NULL)
     {
-        return Cart::instance($cartName)->get($rowId);
+        return Cart::instance($cart)->get($rowId);
     }
 
     /**
-     * Rempve all items from the cart.
+     * Remove an item from the cart.
      *
-     * @param  string $cartName
+     * @param  int $rowId
+     * @param  string $cart
      * @return void
      */
-    protected function emptyCart($cartName=NULL)
+    protected function removeFromCart($rowId, $cart=NULL)
     {
-        Cart::instance($cartName)->destroy();
+        Cart::instance($cart)->remove($rowId);
+    }
+
+    /**
+     * Remove all items from the cart.
+     *
+     * @param  string $cart
+     * @return void
+     */
+    protected function emptyCart($cart=NULL)
+    {
+        Cart::instance($cart)->destroy();
+    }
+
+    /**
+     * Add an item to and remove it from the wishlist.
+     *
+     * @param  \App\Product $product
+     * @param  string $cart
+     * @return void
+     */
+    protected function toggleWishList($product, $cart)
+    {
+        if( $this->itemIsNotInTheCart($product, $cart) && $this->itemIsNotInTheCart($product, 'default'))
+        {
+            $this->addToCart($product, $cart);
+        }
+        else if($this->itemIsInTheCart($product, $cart))
+        {
+            $rowId = $this->findCartItemId($product, $cart);
+
+            $this->removeFromCart($rowId, $cart);
+        }
+    }
+
+    /**
+     * Move an item from the default cart to another cart.
+     *
+     * @param  int $rowId
+     * @param  string $cart
+     * @return void
+     */
+    protected function switchToCart($rowId, $cart)
+    {
+        $product = $this->findProduct($rowId);
+
+        $this->addToCart($product, $cart);
+
+        $this->removeFromCart($rowId);
+    }
+
+    /**
+     * The default cart has duplicate products.
+     *
+     * @param  \App\Product $product
+     * @return boolean
+     */
+    protected function cartHasDuplicates($product)
+    {
+        $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
+            return $cartItem->id === $product->id && $cartItem->options->size_id === request()->size_id && $cartItem->options->color_id === request()->color_id;
+        });
+
+        return $duplicates->isNotEmpty();
+    }
+
+    /**
+     * A product is in the cart.
+     *
+     * @param  \App\Product $product
+     * @param  string $cart
+     * @return boolean
+     */
+    protected function itemIsInTheCart($product, $cart)
+    {
+        $item = $this->findCartItem($product, $cart);
+
+        return $item->isNotEmpty();
+    }
+
+    /**
+     * A product is not in the cart.
+     *
+     * @param  \App\Product $product
+     * @param  string $cart
+     * @return boolean
+     */
+    protected function itemIsNotInTheCart($product, $cart)
+    {
+        $item = $this->findCartItem($product, $cart);
+
+        return $item->isEmpty();
+    }
+
+    /**
+     * Get a cart item rowId.
+     *
+     * @param  \App\Product $product
+     * @param  string $cart
+     * @param  string $attribute
+     * @return int
+     */
+    protected function findCartItemId($product, $cart, $attribute='rowId')
+    {
+        $item = $this->findCartItem($product, $cart)->toArray();
+
+        $values = array_values($item);
+
+        $rowId = $values[0][$attribute];
+
+        return $rowId;
+    }
+
+    /**
+     * Find a cart item by a product id.
+     *
+     * @param  \App\Product $product
+     * @param  string $cart
+     * @return object
+     */
+    protected function findCartItem($product, $cart)
+    {
+        $item = Cart::instance($cart)->search(function ($cartItem, $rowId) use($product) {
+            return $cartItem->id === $product->id;
+        });
+
+        return $item;
+    }
+
+    /**
+     * Find a product by a cart item rowId;
+     *
+     * @param  int $rowId
+     * @return \App\Product
+     */
+    protected function findProduct($rowId)
+    {
+        $item = $this->getCartItem($rowId);
+
+        $product = Product::find($item->id);
+
+        return $product;
     }
 }

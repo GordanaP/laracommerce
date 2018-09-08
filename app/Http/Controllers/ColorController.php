@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Color;
+use App\Product;
 use Illuminate\Http\Request;
 
 class ColorController extends Controller
@@ -12,9 +13,14 @@ class ColorController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if(request()->ajax()){
+
+            return response([
+                'colors' => Color::whereIn('id', $request->colors_ids)->get()
+            ]);
+        }
     }
 
     /**

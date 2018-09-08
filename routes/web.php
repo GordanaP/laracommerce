@@ -22,6 +22,7 @@ Route::namespace('Cart')->prefix('my-wish-list')->as('wishlist.')->group(functio
     Route::get('/', 'WishListController@show')->name('show');
     Route::post('/{product}', 'WishListController@store')->name('store');
     Route::delete('/{rowId}', 'WishListController@destroy')->name('destroy');
-    Route::post('/switch-to-cart/{rowId}', 'WishListController@switchToCart')->name('switchtocart');
     Route::delete('/', 'WishListController@empty')->name('empty');
 });
+
+Route::post('colors', 'ColorController@index')->name('colors.index');

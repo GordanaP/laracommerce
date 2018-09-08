@@ -6,8 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class Color extends Model
 {
-    public function products()
-    {
-        return $this->morphToMany(Product::class, 'productable'); //belongsToMany
-    }
+
 }

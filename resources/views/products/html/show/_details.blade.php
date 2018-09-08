@@ -7,7 +7,7 @@
 
     <!-- Price -->
     <span class="m-text17">
-        {{ $product->presentPrice }}
+        {{ $product->present_price }}
     </span>
 
     <p class="s-text8 p-t-10">
@@ -29,8 +29,10 @@
                 <div class="rs2-select2 rs3-select2 bo4 of-hidden w-size16">
                     <select class="selection-2" name="size_id" id="size_id">
                         <option>Choose a size</option>
-                        @foreach ($sizes as $size)
-                            <option value="{{ $size->id}}">{{ $size->name }}</option>
+                        @foreach ($product->sizes->unique() as $size)
+                            <option value="{{ $size->id}}">
+                                {{ $size->name }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
@@ -44,10 +46,11 @@
 
                 <div class="rs2-select2 rs3-select2 bo4 of-hidden w-size16">
                     <select class="selection-2" name="color_id" id="color_id">
+
                         <option>Choose a color</option>
-                        @foreach ($colors as $color)
-                            <option value="{{ $color->id }}">{{ $color->name }}</option>
-                        @endforeach
+
+                        <!-- Append size-related colors -->
+
                     </select>
                 </div>
             </div>
@@ -84,7 +87,7 @@
         <span class="s-text8 m-r-35">SKU: MUG-01</span>
         <span class="s-text8">
             Categories:
-            @foreach ($product->categories as $category)
+            @foreach ($product->categories->unique() as $category)
                 {{ $category->name }}
             @endforeach
         </span>

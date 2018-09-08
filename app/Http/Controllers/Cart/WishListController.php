@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Cart;
 use App\Http\Controllers\Controller;
 use App\Product;
 use App\Traits\Cart\HasProduct;
-use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Http\Request;
 
 class WishListController extends Controller
@@ -34,14 +33,14 @@ class WishListController extends Controller
      */
     public function store(Request $request, Product $product)
     {
-        if( $this->itemIsNotInTheCart($product, config('constants.wishcart') ) )
+        if($this->itemIsInTheCart($product, 'default'))
         {
-            $this->addToCart($product, config('constants.wishcart'));
-
-            return back();
+            return redirect()->route('carts.show');
         }
 
-        return redirect()->route('wishlist.show');
+        $this->toggleWishList($product, config('constants.wishcart'));
+
+        return back();
     }
 
     /**
@@ -55,29 +54,6 @@ class WishListController extends Controller
         $this->removeFromCart($rowId, config('constants.wishcart'));
 
         return back();
-    }
-
-    /**
-     * Move a product from a wish list to a cart
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $rowId
-     * @return \Illuminate\Http\Response
-     */
-    public function switchToCart($rowId)
-    {
-        $item = $this->getCartItem($rowId, config('constants.wishcart'));
-
-        $product = Product::find($item->id);
-
-        $this->removeFromCart($rowId, config('constants.wishcart'));
-
-        if($this->addToCart($product))
-        {
-            return back();
-        }
-
-        return redirect()->route('carts.show');
     }
 
     /**

@@ -8,6 +8,6 @@ class Size extends Model
 {
     public function products()
     {
-        return $this->morphToMany(Product::class, 'productable'); //belongsToMany
+        return $this->belongsToMany(Product::class)->as('feature')->withPivot('color_id');
     }
 }
