@@ -27,7 +27,9 @@
                                 <th class="column-4"></th>
                             </tr>
 
-                            @each ('wishlist.html._item', $wishListItems, 'item')
+                            @foreach ($wishListItems as $item)
+                                @include('wishlist.html._item', ['products' => $products])
+                            @endforeach
 
                         </table>
                     </div>

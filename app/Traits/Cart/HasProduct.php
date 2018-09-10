@@ -2,7 +2,9 @@
 
 namespace App\Traits\Cart;
 
+use App\Color;
 use App\Product;
+use App\Size;
 use Gloudemans\Shoppingcart\Facades\Cart;
 
 trait HasProduct
@@ -17,11 +19,16 @@ trait HasProduct
      */
     protected function addToCart($product, $cart, $data=null)
     {
+        $size = $data['size_id'] ? Size::find($data['size_id']) : '';
+        $color = $data['color_id'] ? Color::find($data['color_id']) : '';
+
         if ($data)
         {
             $item = Cart::instance($cart)->add($product, $data['quantity'], [
                 'size_id' => $data['size_id'],
                 'color_id' => $data['color_id'],
+                'size' => $size ? $size->name : '',
+                'color' => $color ? $color->name : '',
             ]);
         }
         else
@@ -218,5 +225,20 @@ trait HasProduct
         $product = Product::find($item->id);
 
         return $product;
+    }
+
+    /**
+     * Find products by cart items ids.
+     *
+     * @param  collection $cartItems
+     * @return array
+     */
+    protected function findProducts($cartItems)
+    {
+        $ids = $cartItems->pluck('id');
+
+        $products = Product::findMany($ids);
+
+        return $products;
     }
 }

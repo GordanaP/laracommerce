@@ -57,7 +57,6 @@ class CartController extends Controller
 
             return back();
         }
-
     }
 
     /**
@@ -65,12 +64,13 @@ class CartController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
     public function show()
     {
         $cartItems = $this->getCartContent();
 
-        return view('carts.show', compact('cartItems'));
+        $products = $this->findProducts($cartItems);
+
+        return view('carts.show', compact('cartItems', 'products'));
     }
 
     /**
@@ -88,7 +88,7 @@ class CartController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  int  $rowId
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $rowId)

@@ -1,10 +1,6 @@
-@php
-    $product = \App\Product::find($item->id);
-@endphp
 <tr class="table-row">
     <td class="column-1">
         <form action="{{ route('carts.destroy', $item->rowId) }}" method="POST">
-
             @csrf
             @method('DELETE')
 
@@ -32,16 +28,16 @@
     </td>
     <td class="column-3">
         <p class="product-name">
-            <a href="{{ route('products.show', $product) }}">
-                {{ $item->name }}
+            <a href="{{ route('products.show', $products->find($item->id)->slug) }}">
+                {{ $products->find($item->id)->name }}
             </a>
         </p>
-        <p class="text-xs mt-2">{{ $product->description }}</p>
-        <p class="text-xs mt-2">Color: {{ \App\Color::find($item->options->color_id)->name }}</p>
-        <p class="text-xs mt-2">Size: {{ \App\Size::find($item->options->size_id)->name }}</p>
+        <p class="text-xs mt-2">{{ $products->find($item->id)->description }}</p>
+        <p class="text-xs mt-2">Size: {{  $item->options->size ?: 'No size' }} </p>
+        <p class="text-xs mt-2">Color: {{ $item->options->color ?: 'No color'}} </p>
     </td>
     <td class="column-4">
-        {{ config('app.currency') }}{{ number_format( $item->price, 2 ) }}
+        {{ config('app.currency') }}{{ number_format( $products->find($item->id)->price, 2 ) }}
     </td>
     <td class="column-5">
         <input type="text" class="border border-grey text-center w-12" style="padding-top: 7px !important; padding-bottom: 6px !important" name="quantity" id="quantity" value="{{ $item->qty }}"  data-id="{{ $item->rowId }}" />
@@ -49,5 +45,7 @@
             <i class="fa fa-refresh bg-black text-white px-2 py-2"></i>
         </button>
     </td>
-    <td class="column-6s">{{ config('app.currency') }}{{ number_format($item->price * $item->qty, 2) }}</td>
+    <td class="column-6s">{{ config('app.currency') }}
+        {{ number_format($products->find($item->id)->price * $item->qty, 2) }}
+    </td>
 </tr>

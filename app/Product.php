@@ -4,11 +4,11 @@ namespace App;
 
 use App\Observers\ProductObserver;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
+use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model implements Buyable
 {
-
     /**
      * Get the route key for the model.
      *

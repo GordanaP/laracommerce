@@ -14,14 +14,15 @@ class WishListController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show()
     {
         $wishListItems = $this->getCartContent(config('constants.wishcart'));
 
-        return view('wishlist.show', compact('wishListItems'));
+        $products = $this->findProducts($wishListItems);
+
+        return view('wishlist.show', compact('wishListItems', 'products'));
     }
 
     /**

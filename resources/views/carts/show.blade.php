@@ -15,7 +15,13 @@
     <section class="cart bgwhite p-t-70 p-b-100">
         <div class="container">
 
-            @if (Cart::count())
+{{--             {{ $ids = $cartItems->pluck('id') }}
+            {{ $products = \App\Product::findMany($ids) }}
+
+            @foreach ($products as $product)
+                <p>{{$product->name}}</p>
+            @endforeach
+ --}}            @if (Cart::count())
                 <div class="container-table-cart pos-relative">
                     <div class="wrap-table-shopping-cart bgwhite">
                         <table class="table-shopping-cart">
@@ -29,7 +35,21 @@
                                 <th class="column-6 pr-5">Subtotal</th>
                             </tr>
 
-                            @each ('carts.html._item', $cartItems, 'item')
+                            {{-- @foreach ($cartItems as $item)
+                                 <div>
+                                    {{ $products->find($item->id)->name }}
+                                    {{ $products->find($item->id)->price }}
+                                    {{ $products->find($item->id)->description }}
+                                    {{ $item->options->size }}
+                                    {{ $item->options->color }}
+                                    {{ $item->qty }}
+                                    {{ $item->rowId }}
+                                </div>
+                            @endforeach --}}
+                            @foreach ($cartItems as $item)
+                                @include('carts.html._item', ['products' => $products])
+                            @endforeach
+                            {{-- @each ('carts.html._item', $cartItems, 'item') --}}
 
                         </table>
                     </div>

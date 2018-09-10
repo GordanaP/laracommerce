@@ -1,6 +1,3 @@
-@php
-    $product = \App\Product::find($item->id);
-@endphp
 <tr class="table-row">
     <td class="column-1">
         <div class="cart-img-product b-rad-4 o-f-hidden">
@@ -9,13 +6,13 @@
     </td>
     <td class="column-2">
         <p class="product-name">
-            <a href="{{ route('products.show', $product) }}">
-                {{ $item->name }}
+            <a href="{{ route('products.show', $products->find($item->id)->slug) }}">
+                {{ $products->find($item->id)->name }}
             </a>
         </p>
-        <p class="text-xs mt-2">{{ $product->description }}</p>
+        <p class="text-xs mt-2">{{ $products->find($item->id)->description }}</p>
     </td>
-    <td class="column-3">${{ number_format( $item->price, 2 ) }}</td>
+    <td class="column-3">${{ number_format( $products->find($item->id)->price, 2 ) }}</td>
     <td class="column-4">
         <form action="{{ route('wishlist.destroy', $item->rowId) }}" method="POST">
             @csrf
@@ -28,7 +25,7 @@
             </div>
         </form>
 
-        <a href="{{ route('products.show', $product) }}">Add To Cart</a>
+        <a href="{{ route('products.show', $products->find($item->id)->slug) }}">Add To Cart</a>
 
     </td>
 </tr>

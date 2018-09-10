@@ -3,11 +3,9 @@
 namespace App\Http\Controllers\Product;
 
 use App\Category;
-use App\Color;
 use App\Filters\Product\ProductFilters;
 use App\Http\Controllers\Controller;
 use App\Product;
-use App\Size;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -62,9 +60,7 @@ class ProductController extends Controller
 
         $relatedProducts = Product::relatedProducts('slug', $product->slug);
 
-        $colors = Color::all();
-
-        return view('products.show', compact('product', 'relatedProducts', 'colors'));
+        return view('products.show', compact('product', 'relatedProducts'));
     }
 
     /**
