@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Cart;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\CartRequest;
 use App\Product;
 use App\Traits\Cart\HasProduct;
 use Illuminate\Http\Request;
@@ -38,8 +39,11 @@ class CartController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Product $product)
+    public function store(CartRequest $request, Product $product)
     {
+        // \Cart::destroy();
+        // return back();
+
         if ($this->cartHasDuplicates($product))
         {
             return redirect()->route('carts.show');

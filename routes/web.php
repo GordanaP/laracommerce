@@ -1,5 +1,7 @@
 <?php
 
+Route::view('/test', 'test')->name('test');
+
 Route::view('/', 'welcome')->name('welcome');
 
 Auth::routes();

@@ -33,25 +33,23 @@ function removeQueryString($filter)
 /**
  * Get active class.
  *
- * @param  string $variable1
- * @param  string $variable2
+ * @param  string $value1
+ * @param  string $value2
  * @return string
  */
-function getActiveClass($variable1, $variable2)
+function getActiveClass($value1, $value2)
 {
-    return $variable1 === $variable2 ? 'active' : '';
+    return $value1 === $value2 ? 'active' : '';
 }
 
 /**
- * An item is in the cart.
+ * Get selected option.
  *
- * @param  int $itemId
- * @param  string $cartName
- * @return boolean
+ * @param  string $value1
+ * @param  string $value2
+ * @return string
  */
-function itemIsInCart($itemId, $cartName)
+function getSelected($value1 , $value2)
 {
-    $itemsIds = Cart::instance($cartName)->content()->pluck('id')->toArray();
-
-    return in_array($itemId, $itemsIds);
+    return $value1 == $value2 ? 'selected' : '';
 }

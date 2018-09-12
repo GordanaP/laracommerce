@@ -16,6 +16,7 @@
         <div class="container">
 
             @if (Cart::instance(config('constants.wishcart'))->count())
+
                 <div class="container-table-cart pos-relative">
                     <div class="wrap-table-shopping-cart bgwhite">
                         <table class="table-shopping-cart">
@@ -36,16 +37,8 @@
                 </div>
 
                 <div class="flex-w flex-sb-m p-t-25 p-b-25 bo8 p-l-35 p-r-60 p-lr-15-sm pull-right" style="border: none">
-                    <!-- Button -->
-                    <form action="{{ route('wishlist.empty') }}" method="POST">
-                        <div class="size10 trans-0-4 m-t-10 m-b-10">
-                            @csrf
-                            @method('DELETE')
-                            <button class="flex-c-m sizefull bg1 bo-rad-23 hov1 s-text1 trans-0-4">
-                                Remove Wish LIst
-                            </button>
-                        </div>
-                    </form>
+
+                    @include('wishlist.forms._empty')
                 </div>
             @else
 

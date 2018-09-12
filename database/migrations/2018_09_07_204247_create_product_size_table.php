@@ -24,7 +24,6 @@ class CreateProductSizeTable extends Migration
 
             $table->unsignedInteger('color_id');
             $table->foreign('color_id')->references('id')->on('colors')->onDelete('cascade');
-
         });
     }
 

@@ -7,3 +7,4 @@ body {background: #fff}
 .table-shopping-cart .column-5 { width: 250px }
 
 .active {color:#e65540}
+.invalid-feedback {display: inline;}

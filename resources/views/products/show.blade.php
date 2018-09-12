@@ -32,26 +32,26 @@
             }
         });
 
-        $('.block2-btn-addcart').each(function(){
-            var nameProduct = $(this).parent().parent().parent().find('.block2-name').html();
-            $(this).on('click', function(){
-                swal(nameProduct, "is added to cart !", "success");
-            });
-        });
+        // $('.block2-btn-addcart').each(function(){
+        //     var nameProduct = $(this).parent().parent().parent().find('.block2-name').html();
+        //     $(this).on('click', function(){
+        //         swal(nameProduct, "is added to cart !", "success");
+        //     });
+        // });
 
-        $('.block2-btn-addwishlist').each(function(){
-            var nameProduct = $(this).parent().parent().parent().find('.block2-name').html();
-            $(this).on('click', function(){
-                swal(nameProduct, "is added to wishlist !", "success");
-            });
-        });
+        // $('.block2-btn-addwishlist').each(function(){
+        //     var nameProduct = $(this).parent().parent().parent().find('.block2-name').html();
+        //     $(this).on('click', function(){
+        //         swal(nameProduct, "is added to wishlist !", "success");
+        //     });
+        // });
 
-        $('.btn-addcart-product-detail').each(function(){
-            var nameProduct = $('.product-detail-name').html();
-            $(this).on('click', function(){
-                swal(nameProduct, "is added to wishlist !", "success");
-            });
-        });
+        // $('.btn-addcart-product-detail').each(function(){
+        //     var nameProduct = $('.product-detail-name').html();
+        //     $(this).on('click', function(){
+        //         swal(nameProduct, "is added to wishlist !", "success");
+        //     });
+        // });
 
         var showProductUrl ="{{ route('products.show', $product) }}";
 
@@ -78,7 +78,6 @@
                 type: "GET",
                 success: function(response)
                 {
-                    console.log(response)
                     var sizes = response.product.sizes;
 
                     $.each(sizes, function(index, size) {
@@ -102,10 +101,10 @@
                         {
                             $.each(response.colors, function(index, color)
                             {
-                                 html += '<option value="'+ color.id +'">'+ color.name +'</option>';
+                                html += '<option value="'+ color.id +'">'+ color.name +'</option>';
                             });
 
-                            var placeholder = '<option>Choose a color</option>';
+                            var placeholder = '<option value="">Choose a color</option>';
                             $('select#color_id').empty().append(placeholder).append(html);
                         }
                     });

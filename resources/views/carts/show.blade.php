@@ -15,13 +15,7 @@
     <section class="cart bgwhite p-t-70 p-b-100">
         <div class="container">
 
-{{--             {{ $ids = $cartItems->pluck('id') }}
-            {{ $products = \App\Product::findMany($ids) }}
-
-            @foreach ($products as $product)
-                <p>{{$product->name}}</p>
-            @endforeach
- --}}            @if (Cart::count())
+            @if (Cart::count())
                 <div class="container-table-cart pos-relative">
                     <div class="wrap-table-shopping-cart bgwhite">
                         <table class="table-shopping-cart">
@@ -35,21 +29,9 @@
                                 <th class="column-6 pr-5">Subtotal</th>
                             </tr>
 
-                            {{-- @foreach ($cartItems as $item)
-                                 <div>
-                                    {{ $products->find($item->id)->name }}
-                                    {{ $products->find($item->id)->price }}
-                                    {{ $products->find($item->id)->description }}
-                                    {{ $item->options->size }}
-                                    {{ $item->options->color }}
-                                    {{ $item->qty }}
-                                    {{ $item->rowId }}
-                                </div>
-                            @endforeach --}}
                             @foreach ($cartItems as $item)
                                 @include('carts.html._item', ['products' => $products])
                             @endforeach
-                            {{-- @each ('carts.html._item', $cartItems, 'item') --}}
 
                         </table>
                     </div>
@@ -69,16 +51,7 @@
                         </div>
                     </div>
 
-                    <!-- Button -->
-                    <form action="{{ route('carts.empty') }}" method="POST">
-                        <div class="size10 trans-0-4 m-t-10 m-b-10">
-                            @csrf
-                            @method('DELETE')
-                            <button class="flex-c-m sizefull bg1 bo-rad-23 hov1 s-text1 trans-0-4">
-                                Empty Cart
-                            </button>
-                        </div>
-                    </form>
+                    @include('carts.forms._empty')
                 </div>
 
                 <!-- Total -->
@@ -94,7 +67,7 @@
                         </span>
 
                         <span class="m-text21 w-size20 w-full-sm" id="subtotal">
-                            ${{ Cart::subtotal() }}
+                            {{ presentPrice(Cart::subtotal()) }}
                         </span>
                     </div>
 
@@ -105,7 +78,7 @@
                         </span>
 
                         <span class="m-text21 w-size20 w-full-sm">
-                            ${{ Cart::tax() }}
+                            {{ presentPrice(Cart::tax()) }}
                         </span>
                     </div>
 
@@ -157,7 +130,7 @@
                         </span>
 
                         <span class="m-text21 w-size20 w-full-sm">
-                            ${{ Cart::total() }}
+                            {{ presentPrice(Cart::total()) }}
                         </span>
                     </div>
 

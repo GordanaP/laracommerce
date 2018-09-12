@@ -35,7 +35,8 @@
             "App\\": "app/"
         },
         "files": [
-            "app/Services/Helpers/methods.php"
+            "app/Services/Helpers/methods.php",
+            "app/Services/Helpers/shoppingcart.php"
         ]
     },
     "autoload-dev": {

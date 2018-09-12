@@ -3,12 +3,15 @@
 namespace App;
 
 use App\Observers\ProductObserver;
+use App\Traits\Product\IsBuyable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model implements Buyable
 {
+    use IsBuyable;
+
     /**
      * Get the route key for the model.
      *
@@ -35,11 +38,11 @@ class Product extends Model implements Buyable
      * @param  int  $value
      * @return number
      */
-    public function getPriceAttribute($value)
+    public function getPriceAttribute($value, $decimals = 2)
     {
         $price = $value/100;
 
-        $price_formatted = number_format($price, 2);
+        $price_formatted = number_format($price, $decimals);
 
         return $price_formatted;
     }
@@ -69,18 +72,6 @@ class Product extends Model implements Buyable
         return $query->inRandomOrder()->get()->whereNotIn($attribute, $value)->take($number);
     }
 
-    public function getBuyableIdentifier($options = null){
-        return $this->id;
-    }
-
-    public function getBuyableDescription($options = null){
-        return $this->name;
-    }
-
-    public function getBuyablePrice($options = null){
-        return $this->price;
-    }
-
     public static function findBy($value, $attribute='slug')
     {
         $product = static::where($attribute, $value)->firstOrFail();
@@ -97,5 +88,32 @@ class Product extends Model implements Buyable
     public function scopeFilter($query, $filters)
     {
         return $filters->apply($query);  //App\Filters\Filters.php - apply(Builder $builder);
+    }
+
+    /**
+     * The product has sizes.
+     *
+     * @return boolean [description]
+     */
+    public function hasSizes()
+    {
+        $sizes = $this->sizes->unique();
+
+        return $sizes->isNotEmpty();
+    }
+
+    public function hasColors()
+    {
+        $colors = [];
+
+        if($this->hasSizes())
+        {
+            foreach ($this->sizes as $size)
+            {
+                array_push($colors, $size);
+            }
+        }
+
+        return sizeof($colors) > 0;
     }
 }

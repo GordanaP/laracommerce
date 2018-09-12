@@ -25,9 +25,9 @@ trait HasProduct
         if ($data)
         {
             $item = Cart::instance($cart)->add($product, $data['quantity'], [
-                'size_id' => $data['size_id'],
-                'color_id' => $data['color_id'],
+                'size_id' => $size ? $data['size_id'] : '',
                 'size' => $size ? $size->name : '',
+                'color_id' => $color ? $data['color_id'] : '',
                 'color' => $color ? $color->name : '',
             ]);
         }
@@ -142,9 +142,18 @@ trait HasProduct
      */
     protected function cartHasDuplicates($product)
     {
-        $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
-            return $cartItem->id === $product->id && $cartItem->options->size_id === request()->size_id && $cartItem->options->color_id === request()->color_id;
-        });
+        if(request()->size_id && request()->color_id)
+        {
+            $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
+                return $cartItem->id === $product->id && $cartItem->options->size_id === request()->size_id && $cartItem->options->color_id === request()->color_id;
+            });
+        }
+        else
+        {
+            $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
+                return $cartItem->id === $product->id;
+            });
+        }
 
         return $duplicates->isNotEmpty();
     }
