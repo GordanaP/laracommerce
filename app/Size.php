@@ -10,4 +10,9 @@ class Size extends Model
     {
         return $this->belongsToMany(Product::class)->as('feature')->withPivot('color_id');
     }
+
+    public function product_variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
 }

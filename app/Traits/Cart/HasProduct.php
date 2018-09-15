@@ -17,23 +17,37 @@ trait HasProduct
      * @param array $data
      * @return  object
      */
-    protected function addToCart($product, $cart, $data=null)
-    {
-        $size = $data['size_id'] ? Size::find($data['size_id']) : '';
-        $color = $data['color_id'] ? Color::find($data['color_id']) : '';
+    // protected function addToCart($product, $cart, $data=null)
+    // {
+    //     $size = $data['size_id'] ? Size::find($data['size_id']) : '';
+    //     $color = $data['color_id'] ? Color::find($data['color_id']) : '';
 
-        if ($data)
+    //     if ($data)
+    //     {
+    //         $item = Cart::instance($cart)->add($product, $data['quantity'], [
+    //             'size_id' => $size ? $data['size_id'] : '',
+    //             'size' => $size ? $size->name : '',
+    //             'color_id' => $color ? $data['color_id'] : '',
+    //             'color' => $color ? $color->name : '',
+    //         ]);
+    //     }
+    //     else
+    //     {
+    //         $item = Cart::instance($cart)->add($product, 1);
+    //     }
+
+    //     return $item;
+    // }
+
+    protected function addToCart($product, $quantity = 1)
+    {
+        if($product->hasVariants())
         {
-            $item = Cart::instance($cart)->add($product, $data['quantity'], [
-                'size_id' => $size ? $data['size_id'] : '',
-                'size' => $size ? $size->name : '',
-                'color_id' => $color ? $data['color_id'] : '',
-                'color' => $color ? $color->name : '',
-            ]);
+            $item = Cart::add($product->getVariant(), $quantity);
         }
         else
         {
-            $item = Cart::instance($cart)->add($product, 1);
+            $item = Cart::add($product->getVariant(), $quantity);
         }
 
         return $item;
@@ -140,19 +154,40 @@ trait HasProduct
      * @param  \App\Product $product
      * @return boolean
      */
+    // protected function cartHasDuplicates($product)
+    // {
+    //     if(request()->size_id && request()->color_id)
+    //     {
+    //         $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
+    //             return $cartItem->id === $product->id && $cartItem->options->size_id === request()->size_id && $cartItem->options->color_id === request()->color_id;
+    //         });
+    //     }
+    //     else
+    //     {
+    //         $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
+    //             return $cartItem->id === $product->id;
+    //         });
+    //     }
+
+    //     return $duplicates->isNotEmpty();
+    // }
+
     protected function cartHasDuplicates($product)
     {
-        if(request()->size_id && request()->color_id)
+        if($product->hasVariants())
         {
-            $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
-                return $cartItem->id === $product->id && $cartItem->options->size_id === request()->size_id && $cartItem->options->color_id === request()->color_id;
-            });
+            foreach ($product->product_variants as $productVariant)
+            {
+                $duplicates = \Cart::search(function ($cartItem, $rowId) use($productVariant) {
+                    return $cartItem->id === $productVariant->id;
+                });
+            }
         }
         else
         {
-            $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
-                return $cartItem->id === $product->id;
-            });
+            $duplicates = \Cart::search(function ($cartItem, $rowId) use($product) {
+                    return $cartItem->id === $product->id;
+                });
         }
 
         return $duplicates->isNotEmpty();

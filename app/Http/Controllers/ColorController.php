@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Color;
-use App\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View;
 
 class ColorController extends Controller
 {
@@ -15,10 +15,14 @@ class ColorController extends Controller
      */
     public function index(Request $request)
     {
-        if(request()->ajax()){
+        $colors = Color::whereIn('id', $request->colors_ids)->get();
 
+        $view = View::make('products.html.show._sizecolors', compact('colors'))->render();
+
+        if(request()->ajax()){
             return response([
-                'colors' => Color::whereIn('id', $request->colors_ids)->get()
+                // 'colors' => Color::whereIn('id', $request->colors_ids)->get(),
+                'view' => $view
             ]);
         }
     }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CartRequest;
 use App\Product;
+use App\ProductVariant;
 use App\Traits\Cart\HasProduct;
 use Illuminate\Http\Request;
 
@@ -39,28 +40,20 @@ class CartController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function store(CartRequest $request, Product $product)
+    public function store(Request $request, Product $product)
     {
-        // \Cart::destroy();
-        // return back();
+        return $variant = ProductVariant::findBy($product, $request);
 
-        if ($this->cartHasDuplicates($product))
-        {
-            return redirect()->route('carts.show');
+        if($variant) {
+
+            \Cart::add($variant, $request->quantity);
+
         }
-        else
-        {
-            $item = $this->addToCart($product, 'default', $request);
-
-            if($this->itemIsInTheCart($item, config('constants.wishcart')))
-            {
-                $rowId = $this->findCartItemId($item, config('constants.wishcart'));
-
-                $this->removeFromCart($rowId, config('constants.wishcart'));
-            }
-
-            return back();
+        else {
+            \Cart::add($product, $request->quantity);
         }
+
+        return back();
     }
 
     /**

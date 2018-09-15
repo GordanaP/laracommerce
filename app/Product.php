@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\Color;
 use App\Observers\ProductObserver;
+use App\Size;
 use App\Traits\Product\IsBuyable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Gloudemans\Shoppingcart\Facades\Cart;
@@ -27,10 +29,10 @@ class Product extends Model implements Buyable
         return $this->belongsToMany(Category::class);
     }
 
-    public function sizes()
-    {
-        return $this->belongsToMany(Size::class)->as('feature')->withPivot('color_id');
-    }
+    // public function sizes()
+    // {
+    //     return $this->belongsToMany(Size::class)->as('feature')->withPivot('color_id');
+    // }
 
     /**
      * Set the product price.
@@ -90,30 +92,108 @@ class Product extends Model implements Buyable
         return $filters->apply($query);  //App\Filters\Filters.php - apply(Builder $builder);
     }
 
+    // /**
+    //  * The product has sizes.
+    //  *
+    //  * @return boolean [description]
+    //  */
+    // public function hasSizes()
+    // {
+    //     $sizes = $this->sizes->unique();
+
+    //     return $sizes->isNotEmpty();
+    // }
+
+    // public function hasColors()
+    // {
+    //     $colors = [];
+
+    //     if($this->hasSizes())
+    //     {
+    //         foreach ($this->sizes as $size)
+    //         {
+    //             array_push($colors, $size);
+    //         }
+    //     }
+
+    //     return sizeof($colors) > 0;
+    // }
+
+    public function product_variants()
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
+    /**
+     * Get the product sizes.
+     *
+     * @return array
+     */
+    public function getSizes()
+    {
+        $sizes_ids = $this->product_variants->pluck('size_id')->unique()->toArray();
+
+        $sizes = Size::findMAny($sizes_ids);
+
+        return $sizes;
+    }
+
+    /**
+     * Get the product colors.
+     *
+     * @return array
+     */
+    public function getColors()
+    {
+        $colors_ids = $this->product_variants->pluck('color_id')->unique()->toArray();
+
+        $colors = Color::findMAny($colors_ids);
+
+        return $colors;
+    }
+
+    /**
+     * A product has a specific variant.
+     *
+     * @param  array  $data
+     * @return boolean
+     */
+    public function hasVariants()
+    {
+        return $this->product_variants->count() > 0;
+    }
+
+    public function getVariant()
+    {
+        $productVariant = $this->product_variants
+            ->where('size_id', request()->size_id)
+            ->where('color_id', request()->color_id)
+            ->first();
+
+        return $productVariant;
+    }
+
     /**
      * The product has sizes.
      *
-     * @return boolean [description]
+     * @return boolean
      */
     public function hasSizes()
     {
-        $sizes = $this->sizes->unique();
+        $sizes = $this->product_variants->where('size_id', '!==', null);
 
         return $sizes->isNotEmpty();
     }
 
+    /**
+     * The product has colors.
+     *
+     * @return boolean
+     */
     public function hasColors()
     {
-        $colors = [];
+        $colors = $this->product_variants->where('color_id', '!==', null);
 
-        if($this->hasSizes())
-        {
-            foreach ($this->sizes as $size)
-            {
-                array_push($colors, $size);
-            }
-        }
-
-        return sizeof($colors) > 0;
+        return $colors->isNotEmpty();
     }
 }

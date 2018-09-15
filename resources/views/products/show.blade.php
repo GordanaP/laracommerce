@@ -54,62 +54,42 @@
         // });
 
         var showProductUrl ="{{ route('products.show', $product) }}";
-
-        function getOptions(values)
-        {
-           var html = '';
-
-           $.each(values, function(index, value) {
-              html += '<option value="'+ value.id +'">'+ value.name+'</option>'
-           });
-
-           return html;
-        }
+        var indexColorsUrl = "{{ route('colors.index') }}";
 
         $('select#size_id').on('change', function () {
 
             var size_id = this.value;
             var colors_ids = [];
-            var options;
-            var html = '';
 
             $.ajax({
                 url: showProductUrl,
                 type: "GET",
+                dataType: "json",
+                async: false,
                 success: function(response)
                 {
-                    var sizes = response.product.sizes;
+                    var variants = response.product.product_variants;
 
-                    $.each(sizes, function(index, size) {
-
-                        if (size.id == size_id) {
-                             colors_ids.push(size.feature.color_id);
-                        }
-                    });
-
-                    var indexColorsUrl = "{{ route('colors.index') }}";
-
-                    var data = {
-                        colors_ids : colors_ids
-                    }
-
-                    $.ajax({
-                        url: indexColorsUrl,
-                        type: "POST",
-                        data: data,
-                        success: function(response)
-                        {
-                            $.each(response.colors, function(index, color)
-                            {
-                                html += '<option value="'+ color.id +'">'+ color.name +'</option>';
-                            });
-
-                            var placeholder = '<option value="">Choose a color</option>';
-                            $('select#color_id').empty().append(placeholder).append(html);
-                        }
+                    $.each(variants, function(index, variant) {
+                         if (size_id == variant.size_id) {
+                              colors_ids.push(variant.color_id);
+                         }
                     });
                 }
             });
+
+            $.ajax({
+                url: indexColorsUrl,
+                type: "POST",
+                data: {
+                    colors_ids : colors_ids
+                },
+                success: function(response)
+                {
+                    $('select#color_id').html(response.view)
+                }
+            });
         });
+
     </script>
 @endsection

@@ -12,7 +12,7 @@
                 <div class="rs2-select2 rs3-select2 bo4 of-hidden w-size16">
                     <select class="selection-2" name="size_id" id="size_id">
                         <option value="">Choose a size</option>
-                        @foreach ($product->sizes->unique() as $size)
+                        @foreach ($product->getSizes() as $size)
                             <option value="{{ $size->id }}"
                                {{  getSelected($size->id , old('size_id')) }}
                             >
@@ -48,7 +48,15 @@
 
                         <option value="">Choose a color</option>
 
-                        <!-- Append size-related colors -->
+                        @if ($product->hasSizes())
+                            <!-- Append size-related colors -->
+                        @else
+                            @foreach ($product->getColors() as $color)
+                                <option value="{{ $color->id }}">
+                                    {{ $color->name }}
+                                </option>
+                            @endforeach
+                        @endif
 
                     </select>
                 </div>
