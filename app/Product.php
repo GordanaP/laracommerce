@@ -5,6 +5,7 @@ namespace App;
 use App\Color;
 use App\Observers\ProductObserver;
 use App\Size;
+use App\Traits\Product\HasPrice;
 use App\Traits\Product\IsBuyable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Gloudemans\Shoppingcart\Facades\Cart;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model implements Buyable
 {
-    use IsBuyable;
+    use IsBuyable, HasPrice;
 
     /**
      * Get the route key for the model.
@@ -24,44 +25,17 @@ class Product extends Model implements Buyable
         return 'slug';
     }
 
+    /**
+     * Get the categotes that own the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function categories()
     {
         return $this->belongsToMany(Category::class);
     }
 
-    // public function sizes()
-    // {
-    //     return $this->belongsToMany(Size::class)->as('feature')->withPivot('color_id');
-    // }
 
-    /**
-     * Set the product price.
-     *
-     * @param  int  $value
-     * @return number
-     */
-    public function getPriceAttribute($value, $decimals = 2)
-    {
-        $price = $value/100;
-
-        $price_formatted = number_format($price, $decimals);
-
-        return $price_formatted;
-    }
-
-    /**
-     * Set the product price and currency.
-     *
-     * @return string
-     */
-    public function getPresentPriceAttribute()
-    {
-        $price = $this->price;
-
-        $currency = config('app.currency');
-
-        return $currency.$price;
-    }
 
     /**
      * Scope a query to only include related products.
@@ -92,32 +66,11 @@ class Product extends Model implements Buyable
         return $filters->apply($query);  //App\Filters\Filters.php - apply(Builder $builder);
     }
 
-    // /**
-    //  * The product has sizes.
-    //  *
-    //  * @return boolean [description]
-    //  */
-    // public function hasSizes()
-    // {
-    //     $sizes = $this->sizes->unique();
-
-    //     return $sizes->isNotEmpty();
-    // }
-
-    // public function hasColors()
-    // {
-    //     $colors = [];
-
-    //     if($this->hasSizes())
-    //     {
-    //         foreach ($this->sizes as $size)
-    //         {
-    //             array_push($colors, $size);
-    //         }
-    //     }
-
-    //     return sizeof($colors) > 0;
-    // }
+    /**
+     * Get the product variants that belong to product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
 
     public function product_variants()
     {
@@ -161,6 +114,41 @@ class Product extends Model implements Buyable
     public function hasVariants()
     {
         return $this->product_variants->count() > 0;
+    }
+
+    public function getPresentPriceAttribute()
+    {
+        $prices = $this->getVariantPrices();
+
+        if($prices)
+        {
+            $price = $this->hasOnePrice($prices) ? $this->presentedPrices($this->price) : 'ab '. $this->presentedPrices($prices->min());
+        }
+        else
+        {
+            $price = presentedPrices($this->price);
+        }
+
+        return $price;
+    }
+
+    public function getVariantPrices()
+    {
+        return $prices = $this->product_variants->load('product')->pluck('price');
+    }
+
+    public function presentedPrices($price)
+    {
+        return presentCurrency() . $price;
+    }
+
+    public function hasOnePrice($prices)
+    {
+        $filtered = $prices->filter(function($price) {
+                return $price != $this->price;
+            });
+
+        return $filtered->isEmpty();
     }
 
     public function getVariant()
@@ -207,4 +195,14 @@ class Product extends Model implements Buyable
 
         return $variant;
     }
+
+    /**
+     * Present the product price and the currency.
+     *
+     * @return string
+     */
+    // public function getPresentPriceAttribute()
+    // {
+    //     return presentCurrency() . $this->getPrice();
+    // }
 }

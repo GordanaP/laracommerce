@@ -27,7 +27,7 @@
 
     <!-- Price -->
     <td class="column-4">
-        {{ $item->price }}
+        {{ presentPrice($item->price) }}
     </td>
 
     <!-- Update Qty -->
@@ -41,7 +41,7 @@
 
     <!-- Product subtotal -->
     <td class="column-6s">
-        {{ $item->price * $item->qty }}
+        {{ presentPrice(itemSubtotal($item->price, $item->qty)) }}
     </td>
 
 </tr>

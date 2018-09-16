@@ -3,6 +3,7 @@
 @section('title', 'Product')
 
 @section('content')
+
     <!-- Breadcrumb -->
     @include('products.partials.html._breadcrumb')
 

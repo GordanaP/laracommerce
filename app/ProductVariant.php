@@ -2,13 +2,14 @@
 
 namespace App;
 
-use App\Traits\ProductVariant\IsBuyable;
+use App\Traits\Product\HasPrice;
+use App\Traits\Product\IsBuyable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Illuminate\Database\Eloquent\Model;
 
 class ProductVariant extends Model implements Buyable
 {
-    use IsBuyable;
+    use IsBuyable, HasPrice;
 
     /**
      * Get the product that owns the variant.
@@ -40,18 +41,8 @@ class ProductVariant extends Model implements Buyable
         return $this->belongsTo(Color::class);
     }
 
-    /**
-     * Set the variant price.
-     *
-     * @param  int  $value
-     * @return float
-     */
-    public function getPriceAttribute($value, $decimals = 2)
+    public function getNameAttribute()
     {
-        $price = $value/100;
-
-        $price_formatted = number_format($price, $decimals);
-
-        return $price_formatted;
+        return $this->name = $this->product->name;
     }
 }

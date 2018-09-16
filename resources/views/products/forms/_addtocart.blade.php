@@ -2,6 +2,7 @@
 
     @csrf
 
+    <!-- Size -->
     @if ($product->hasSizes())
         <div class="p-t-33 p-b-60">
             <div class="flex-m flex-w p-b-10">
@@ -49,7 +50,9 @@
                         <option value="">Choose a color</option>
 
                         @if ($product->hasSizes())
+
                             <!-- Append size-related colors -->
+
                         @else
                             @foreach ($product->getColors() as $color)
                                 <option value="{{ $color->id }}">

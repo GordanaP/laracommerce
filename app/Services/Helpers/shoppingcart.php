@@ -21,7 +21,7 @@ function itemIsInCart($itemId, $cart)
  * @param  integer  $quantity
  * @return float
  */
-function getItemSubtotal($price, $quantity)
+function itemSubtotal($price, $quantity)
 {
     $subtotal = $price * $quantity;
 
@@ -29,17 +29,14 @@ function getItemSubtotal($price, $quantity)
 }
 
 /**
- * Get currency and formatted price.
+ * Present the price and the currency.
  *
  * @param  float $price
- * @param  integer $decimals
  * @return string
  */
 function presentPrice($price)
 {
-    $currency = config('app.currency');
-
-    return $currency.$price;
+    return presentCurrency() . formattedPrice($price);
 }
 
 /**
@@ -49,9 +46,19 @@ function presentPrice($price)
  * @param  integer $decimals
  * @return float
  */
-function getFormattedPrice($price, $decimals = 2)
+function formattedPrice($price, $decimals = 2)
 {
     $price = number_format($price, $decimals);
 
     return $price;
+}
+
+/**
+ * Get the currency;
+ *
+ * @return string
+ */
+function presentCurrency()
+{
+    return config('app.currency');
 }

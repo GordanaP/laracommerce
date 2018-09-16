@@ -36,9 +36,9 @@
                                     {{ $product->name }}
                                 </a>
 
-                                <span class="block2-price m-text6 p-r-5">
-                                    {{ $product->presentPrice }}
-                                </span>
+                                {{-- <span class="block2-price m-text6 p-r-5">
+                                    {{ $product->getPrice() }}
+                                </span> --}}
                             </div>
                         </div>
                     </div>
