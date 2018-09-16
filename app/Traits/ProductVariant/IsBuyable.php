@@ -27,7 +27,7 @@ trait IsBuyable
      *
      * @return float
      */
-    public function getBuyablePrice($options = null){
-        return $this->price ?: $this->product->price;
+    public function getBuyablePrice($options = null) {
+        return $this->price == 0 ? $this->product->price : $this->price;
     }
 }

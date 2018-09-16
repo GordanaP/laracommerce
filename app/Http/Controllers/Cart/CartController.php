@@ -42,16 +42,7 @@ class CartController extends Controller
      */
     public function store(Request $request, Product $product)
     {
-        return $variant = ProductVariant::findBy($product, $request);
-
-        if($variant) {
-
-            \Cart::add($variant, $request->quantity);
-
-        }
-        else {
-            \Cart::add($product, $request->quantity);
-        }
+        $this->addToCart($product, $request);
 
         return back();
     }

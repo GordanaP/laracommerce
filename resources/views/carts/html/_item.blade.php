@@ -16,18 +16,18 @@
     <!-- Product name, desciption, size, color -->
     <td class="column-3">
         <p class="product-name">
-            <a href="{{ route('products.show', $products->find($item->id)->slug) }}">
-                {{ $products->find($item->id)->name }}
+            <a href="{{ route('products.show', $products->find($item->options->id)->slug) }}">
+                {{ $item->name }}
             </a>
         </p>
-        <p class="text-xs mt-2">{{ $products->find($item->id)->description }}</p>
-        <p class="text-xs mt-2">Size: {{  $item->options->size ?: 'No size' }} </p>
-        <p class="text-xs mt-2">Color: {{ $item->options->color ?: 'No color'}} </p>
+        <p class="text-xs mt-2">{{ $products->find($item->options->id)->description }}</p>
+        <p class="text-xs mt-2">Size: {{ $item->options->size }} </p>
+        <p class="text-xs mt-2">Color: {{  $item->options->color }} </p>
     </td>
 
     <!-- Price -->
     <td class="column-4">
-        {{ presentPrice($products->find($item->id)->price) }}
+        {{ $item->price }}
     </td>
 
     <!-- Update Qty -->
@@ -41,7 +41,7 @@
 
     <!-- Product subtotal -->
     <td class="column-6s">
-        {{ presentPrice(getFormattedPrice(getItemSubtotal($products->find($item->id)->price, $item->qty)))   }}
+        {{ $item->price * $item->qty }}
     </td>
 
 </tr>

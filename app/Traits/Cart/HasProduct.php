@@ -4,6 +4,7 @@ namespace App\Traits\Cart;
 
 use App\Color;
 use App\Product;
+use App\ProductVariant;
 use App\Size;
 use Gloudemans\Shoppingcart\Facades\Cart;
 
@@ -39,18 +40,41 @@ trait HasProduct
     //     return $item;
     // }
 
-    protected function addToCart($product, $quantity = 1)
-    {
-        if($product->hasVariants())
-        {
-            $item = Cart::add($product->getVariant(), $quantity);
-        }
-        else
-        {
-            $item = Cart::add($product->getVariant(), $quantity);
-        }
+    // protected function addToCart($product, $quantity = 1)
+    // {
+    //     if($product->hasVariants())
+    //     {
+    //         $item = Cart::add($product->getVariant(), $quantity);
+    //     }
+    //     else
+    //     {
+    //         $item = Cart::add($product->getVariant(), $quantity);
+    //     }
 
-        return $item;
+    //     return $item;
+    // }
+    //
+    //
+
+    /**
+     * Add an item to the cart.
+     *
+     * @param \App\Product $product
+     * @param array $data
+     */
+    protected function addToCart($product, $data)
+    {
+        $variant = $product->findVariant($data);
+        $quantity = $data['quantity'] ?: 1;
+        $size = $data['size_id'] ? Size::find($data['size_id'])->name : '';
+        $color = $data['color_id'] ? Color::find($data['color_id'])->name : '';
+
+        $variant ?  Cart::add($variant, $quantity, [
+                        'id'=>$variant->product->id,
+                        'size' => $size,
+                        'color' => $color,
+                    ])
+                :   Cart::add($product, $quantity, ['id' => $product->id]);
     }
 
     /**
@@ -279,10 +303,11 @@ trait HasProduct
      */
     protected function findProducts($cartItems)
     {
-        $ids = $cartItems->pluck('id');
+        $ids = $cartItems->pluck('options.id');
 
         $products = Product::findMany($ids);
 
         return $products;
     }
+
 }

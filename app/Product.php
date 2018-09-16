@@ -196,4 +196,15 @@ class Product extends Model implements Buyable
 
         return $colors->isNotEmpty();
     }
+
+    public function findVariant($data)
+    {
+        $variant = $this->product_variants
+            ->where('product_id', $this->id)
+            ->where('size_id', $data['size_id'])
+            ->where('color_id', $data['color_id'])
+            ->first();
+
+        return $variant;
+    }
 }
