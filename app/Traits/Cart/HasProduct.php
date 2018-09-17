@@ -11,56 +11,44 @@ use Gloudemans\Shoppingcart\Facades\Cart;
 trait HasProduct
 {
     /**
-     * Add a product to the cart.
+     * The default cart has duplicates.
      *
-     * @param \App\Product  $product
-     * @param string  $cart
-     * @param array $data
-     * @return  object
+     * @param  \App\Product $product
+     * @param  array $data
+     * @return boolean
      */
-    // protected function addToCart($product, $cart, $data=null)
-    // {
-    //     $size = $data['size_id'] ? Size::find($data['size_id']) : '';
-    //     $color = $data['color_id'] ? Color::find($data['color_id']) : '';
+    protected function cartHasDuplicates($product, $data)
+    {
+        $duplicates = Cart::search(function ($cartItem, $rowId) use ($product, $data) {
 
-    //     if ($data)
-    //     {
-    //         $item = Cart::instance($cart)->add($product, $data['quantity'], [
-    //             'size_id' => $size ? $data['size_id'] : '',
-    //             'size' => $size ? $size->name : '',
-    //             'color_id' => $color ? $data['color_id'] : '',
-    //             'color' => $color ? $color->name : '',
-    //         ]);
-    //     }
-    //     else
-    //     {
-    //         $item = Cart::instance($cart)->add($product, 1);
-    //     }
+            $variant = $product->findVariant($data);
 
-    //     return $item;
-    // }
+            return $variant ? ($cartItem->id === $variant->id && $this->getCartItemType($cartItem, 'variant'))
+                            : ($cartItem->id === $product->id && $this->getCartItemType($cartItem, 'product'));
+        });
 
-    // protected function addToCart($product, $quantity = 1)
-    // {
-    //     if($product->hasVariants())
-    //     {
-    //         $item = Cart::add($product->getVariant(), $quantity);
-    //     }
-    //     else
-    //     {
-    //         $item = Cart::add($product->getVariant(), $quantity);
-    //     }
+        return $duplicates->isNotEmpty();
+    }
 
-    //     return $item;
-    // }
-    //
-    //
+    /**
+     * Determine whether the cart item is a product or its variant.
+     *
+     * @param  array $cartItem
+     * @param  string $type
+     * @return boolean
+     */
+    protected function getCartItemType($cartItem, $type)
+    {
+        return $cartItem->options->type === $type;
+    }
+
 
     /**
      * Add an item to the cart.
      *
      * @param \App\Product $product
      * @param array $data
+     * @return  void
      */
     protected function addToCart($product, $data)
     {
@@ -70,18 +58,22 @@ trait HasProduct
         $color = $data['color_id'] ? Color::find($data['color_id'])->name : '';
 
         $variant ?  Cart::add($variant, $quantity, [
-                        'id'=>$variant->product->id,
+                        'type' => 'variant',
+                        'product_id'=>$variant->product->id,
                         'size' => $size,
                         'color' => $color,
                     ])
-                :   Cart::add($product, $quantity, ['id' => $product->id]);
+                 :   Cart::add($product, $quantity, [
+                        'type' => 'product',
+                        'product_id' => $product->id
+                    ]);
     }
 
     /**
      * Update the default cart.
      *
-     * @param  int $rowId
-     * @param  int $quantity
+     * @param  string $rowId
+     * @param  integer $quantity
      * @return void
      */
     protected function updateCart($rowId, $quantity)
@@ -90,7 +82,7 @@ trait HasProduct
     }
 
     /**
-     * Get all cart items.
+     * Get all the cart items.
      *
      * @param  string $cart
      * @return array
@@ -103,9 +95,9 @@ trait HasProduct
     /**
      * Get a specific cart item.
      *
-     * @param  int $rowId
+     * @param  string $rowId
      * @param  string $cart
-     * @return object;
+     * @return array;
      */
     protected function getCartItem($rowId, $cart=NULL)
     {
@@ -115,7 +107,7 @@ trait HasProduct
     /**
      * Remove an item from the cart.
      *
-     * @param  int $rowId
+     * @param  string $rowId
      * @param  string $cart
      * @return void
      */
@@ -125,7 +117,7 @@ trait HasProduct
     }
 
     /**
-     * Remove all items from the cart.
+     * Remove all the items from the cart.
      *
      * @param  string $cart
      * @return void
@@ -170,51 +162,6 @@ trait HasProduct
         $this->addToCart($product, $cart);
 
         $this->removeFromCart($rowId);
-    }
-
-    /**
-     * The default cart has duplicate products.
-     *
-     * @param  \App\Product $product
-     * @return boolean
-     */
-    // protected function cartHasDuplicates($product)
-    // {
-    //     if(request()->size_id && request()->color_id)
-    //     {
-    //         $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
-    //             return $cartItem->id === $product->id && $cartItem->options->size_id === request()->size_id && $cartItem->options->color_id === request()->color_id;
-    //         });
-    //     }
-    //     else
-    //     {
-    //         $duplicates = Cart::search(function ($cartItem, $rowId) use($product) {
-    //             return $cartItem->id === $product->id;
-    //         });
-    //     }
-
-    //     return $duplicates->isNotEmpty();
-    // }
-
-    protected function cartHasDuplicates($product)
-    {
-        if($product->hasVariants())
-        {
-            foreach ($product->product_variants as $productVariant)
-            {
-                $duplicates = \Cart::search(function ($cartItem, $rowId) use($productVariant) {
-                    return $cartItem->id === $productVariant->id;
-                });
-            }
-        }
-        else
-        {
-            $duplicates = \Cart::search(function ($cartItem, $rowId) use($product) {
-                    return $cartItem->id === $product->id;
-                });
-        }
-
-        return $duplicates->isNotEmpty();
     }
 
     /**
@@ -296,16 +243,16 @@ trait HasProduct
     }
 
     /**
-     * Find products by cart items ids.
+     * Find products by cart items options product_id.
      *
      * @param  collection $cartItems
      * @return array
      */
     protected function findProducts($cartItems)
     {
-        $ids = $cartItems->pluck('options.id');
+        $products_ids = $cartItems->pluck('options.product_id');
 
-        $products = Product::findMany($ids);
+        $products = Product::findMany($products_ids);
 
         return $products;
     }

@@ -16,11 +16,11 @@
     <!-- Product name, desciption, size, color -->
     <td class="column-3">
         <p class="product-name">
-            <a href="{{ route('products.show', $products->find($item->options->id)->slug) }}">
+            <a href="{{ route('products.show', $products->find($item->options->product_id)->slug) }}">
                 {{ $item->name }}
             </a>
         </p>
-        <p class="text-xs mt-2">{{ $products->find($item->options->id)->description }}</p>
+        <p class="text-xs mt-2">{{ $products->find($item->options->product_id)->description }}</p>
         <p class="text-xs mt-2">Size: {{ $item->options->size }} </p>
         <p class="text-xs mt-2">Color: {{  $item->options->color }} </p>
     </td>

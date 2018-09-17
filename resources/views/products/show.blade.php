@@ -9,7 +9,17 @@
 
     <div class="container bgwhite p-t-35 p-b-80">
         <div class="flex-w flex-sb">
-
+            {{-- @php
+                $id = 3
+            @endphp
+            @foreach (\Cart::content() as $item)
+                @if ($item->id == $id &&  $item->options->is_variant == true)
+                    {{ \App\ProductVariant::find($id)->product->name }}
+                @else
+                    {{ \App\Product::find($id)->name }}
+                @endif
+            @endforeach
+ --}}
             <!-- Images -->
             @include('products.html.show._images')
 

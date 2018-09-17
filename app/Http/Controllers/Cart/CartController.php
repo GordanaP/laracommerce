@@ -42,9 +42,16 @@ class CartController extends Controller
      */
     public function store(Request $request, Product $product)
     {
+        if($this->cartHasDuplicates($product, $request))
+        {
+            return redirect()->route('carts.show');
+        }
+
         $this->addToCart($product, $request);
 
         return back();
+
+
     }
 
     /**
