@@ -3,7 +3,6 @@
     <!-- Actions -->
     <td class="column-1">
         @include('carts.forms._removeitem')
-        @include('carts.forms._switchtowishlist')
     </td>
 
     <!-- Image -->

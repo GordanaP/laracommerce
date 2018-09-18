@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Cart;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CartRequest;
 use App\Product;
-use App\ProductVariant;
 use App\Traits\Cart\HasProduct;
 use Illuminate\Http\Request;
 
@@ -42,6 +41,8 @@ class CartController extends Controller
      */
     public function store(Request $request, Product $product)
     {
+        $cart = config('constants.wishcart');
+
         if($this->cartHasDuplicates($product, $request))
         {
             return redirect()->route('carts.show');
@@ -49,9 +50,14 @@ class CartController extends Controller
 
         $this->addToCart($product, $request);
 
+        if($this->itemIsInTheCustomCart($product, $cart)) {
+
+            $rowId = $this->findCartItemId($product, $cart, $attribute='rowId');
+
+            $this->removeFromCart($rowId, $cart);
+        }
+
         return back();
-
-
     }
 
     /**
@@ -106,19 +112,6 @@ class CartController extends Controller
         $this->removeFromCart($rowId);
 
         return back();
-    }
-
-    /**
-     * Move the product from the cart to the wish list.
-     *
-     * @param int $rowId
-     * @return  \Illuminate\Http\Response
-     */
-    public function switchToWishList($rowId)
-    {
-        $this->switchToCart($rowId, config('constants.wishcart'));
-
-        return redirect()->route('wishlist.show');
     }
 
     /**

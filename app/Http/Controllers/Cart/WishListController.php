@@ -20,7 +20,7 @@ class WishListController extends Controller
     {
         $wishListItems = $this->getCartContent(config('constants.wishcart'));
 
-        $products = $this->findProducts($wishListItems);
+        $products = $this->findProducts($wishListItems, config('constants.wishcart'));
 
         return view('wishlist.show', compact('wishListItems', 'products'));
     }
@@ -34,11 +34,6 @@ class WishListController extends Controller
      */
     public function store(Request $request, Product $product)
     {
-        if($this->itemIsInTheCart($product, 'default'))
-        {
-            return redirect()->route('carts.show');
-        }
-
         $this->toggleWishList($product, config('constants.wishcart'));
 
         return back();
