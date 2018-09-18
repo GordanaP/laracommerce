@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Size extends Model
 {
+    /**
+     * Get the products that own the size.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
     public function products()
     {
         return $this->belongsToMany(Product::class)->as('feature')->withPivot('color_id');

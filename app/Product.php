@@ -3,12 +3,10 @@
 namespace App;
 
 use App\Color;
-use App\Observers\ProductObserver;
 use App\Size;
 use App\Traits\Product\HasPrice;
 use App\Traits\Product\IsBuyable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
-use Gloudemans\Shoppingcart\Facades\Cart;
 use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model implements Buyable
@@ -26,7 +24,7 @@ class Product extends Model implements Buyable
     }
 
     /**
-     * Get the categotes that own the product.
+     * Get the categories that own the product.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
@@ -36,7 +34,7 @@ class Product extends Model implements Buyable
     }
 
     /**
-     * Scope a query to only include related products.
+     * Scope a query to include related products only.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
@@ -46,6 +44,13 @@ class Product extends Model implements Buyable
         return $query->inRandomOrder()->get()->whereNotIn($attribute, $value)->take($number);
     }
 
+    /**
+     * Find the product by its attribute.
+     *
+     * @param  string $value
+     * @param  string $attribute
+     * @return \App\Product
+     */
     public static function findBy($value, $attribute='slug')
     {
         $product = static::where($attribute, $value)->firstOrFail();
@@ -54,8 +59,9 @@ class Product extends Model implements Buyable
     }
 
     /**
-     * Scope a query to only include filtered products.
+     * Scope a query to include filtered products only.
      *
+     * @param \App\Filters\Filters  $filters
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
     */
@@ -82,9 +88,9 @@ class Product extends Model implements Buyable
      */
     public function getSizes()
     {
-        $sizes_ids = $this->product_variants->pluck('size_id')->unique()->toArray();
+        $sizes_ids = $this->collectAttributeValues('size_id')->unique()->toArray();
 
-        $sizes = Size::findMAny($sizes_ids);
+        $sizes = Size::findMany($sizes_ids);
 
         return $sizes;
     }
@@ -96,17 +102,16 @@ class Product extends Model implements Buyable
      */
     public function getColors()
     {
-        $colors_ids = $this->product_variants->pluck('color_id')->unique()->toArray();
+        $colors_ids = $this->collectAttributeValues('color_id')->unique()->toArray();
 
-        $colors = Color::findMAny($colors_ids);
+        $colors = Color::findMany($colors_ids);
 
         return $colors;
     }
 
     /**
-     * A product has a specific variant.
+     * A product has variants.
      *
-     * @param  array  $data
      * @return boolean
      */
     public function hasVariants()
@@ -114,13 +119,19 @@ class Product extends Model implements Buyable
         return $this->product_variants->count() > 0;
     }
 
+    /**
+     * Set the product's present_price attribute.
+     *
+     * @return string
+     */
     public function getPresentPriceAttribute()
     {
-        $prices = $this->getVariantPrices();
+        $prices = $this->collectAttributeValues('price');;
 
         if($prices)
         {
-            $price = $this->hasVariablePrice($prices) ? 'ab '. $this->presentedPrices($prices->min()) : $this->presentedPrices($this->price);
+            $price = $this->hasVariablePrice($prices) ? 'ab '. $this->presentedPrices($prices->min())
+                                                      : $this->presentedPrices($this->price);
         }
         else
         {
@@ -130,18 +141,23 @@ class Product extends Model implements Buyable
         return $price;
     }
 
-    public function getVariantPrices()
-    {
-        $prices = $this->product_variants->pluck('price');
-
-        return $prices;
-    }
-
+    /**
+     * Fetch price and currency.
+     *
+     * @param  float $price
+     * @return string
+     */
     public function presentedPrices($price)
     {
         return presentCurrency() . $price;
     }
 
+    /**
+     * The product has a variable price depending on the variant.
+     *
+     * @param  collection  $prices
+     * @return boolean
+     */
     public function hasVariablePrice($prices)
     {
         $filtered = $prices->filter(function($price) {
@@ -149,16 +165,6 @@ class Product extends Model implements Buyable
             });
 
         return $filtered->isNotEmpty();
-    }
-
-    public function getVariant()
-    {
-        $productVariant = $this->product_variants
-            ->where('size_id', request()->size_id)
-            ->where('color_id', request()->color_id)
-            ->first();
-
-        return $productVariant;
     }
 
     /**
@@ -185,6 +191,12 @@ class Product extends Model implements Buyable
         return $colors->isNotEmpty();
     }
 
+    /**
+     * Find a specific product variant by its attributes.
+     *
+     * @param  array $data
+     * @return \App\ProductVariant
+     */
     public function findVariant($data)
     {
         $variant = $this->product_variants
@@ -197,12 +209,13 @@ class Product extends Model implements Buyable
     }
 
     /**
-     * Present the product price and the currency.
+     * Collect the variants-related attribute values.
      *
-     * @return string
+     * @param  string $attribute
+     * @return collection
      */
-    // public function getPresentPriceAttribute()
-    // {
-    //     return presentCurrency() . $this->getPrice();
-    // }
+    public function collectAttributeValues($attribute)
+    {
+        return $this->product_variants->pluck($attribute);
+    }
 }

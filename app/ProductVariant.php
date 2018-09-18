@@ -41,6 +41,11 @@ class ProductVariant extends Model implements Buyable
         return $this->belongsTo(Color::class);
     }
 
+    /**
+     * Set the variant's name attribute.
+     *
+     * @return string
+     */
     public function getNameAttribute()
     {
         return $this->name = $this->product->name;
