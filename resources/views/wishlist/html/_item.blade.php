@@ -18,7 +18,9 @@
     </td>
 
     <!-- Price -->
-    <td class="column-3">{{ $products->find($item->id)->present_price }}</td>
+    <td class="column-3">
+        {{ $item->options->price }}
+    </td>
 
     <!-- Actions -->
     <td class="column-4">

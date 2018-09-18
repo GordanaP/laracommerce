@@ -41,8 +41,6 @@ class CartController extends Controller
      */
     public function store(Request $request, Product $product)
     {
-        $cart = config('constants.wishcart');
-
         if($this->cartHasDuplicates($product, $request))
         {
             return redirect()->route('carts.show');
@@ -50,12 +48,7 @@ class CartController extends Controller
 
         $this->addToCart($product, $request);
 
-        if($this->itemIsInTheCustomCart($product, $cart)) {
-
-            $rowId = $this->findCartItemId($product, $cart, $attribute='rowId');
-
-            $this->removeFromCart($rowId, $cart);
-        }
+        $this->removeFromTheCustomCart($product, config('constants.wishcart'));
 
         return back();
     }

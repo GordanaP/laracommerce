@@ -134,7 +134,10 @@ class Product extends Model implements Buyable
 
     public function getVariantPrices()
     {
-        return $prices = $this->product_variants->load('product')->pluck('price');
+        $prices = $this->product_variants->load('product')->pluck('price');
+        // $prices = $this->product_variants->load('product')->pluck('price');
+
+        return $prices;
     }
 
     public function presentedPrices($price)

@@ -105,11 +105,14 @@ trait HasProduct
     {
         if( $this->itemIsNotInTheCart($product, $cart))
         {
-            Cart::instance($cart)->add($product, 1);
+            Cart::instance($cart)->add($product, 1, [
+                'product_id' => $product->id,
+                'price' => $product->present_price,
+            ]);
         }
         else if($this->itemIsInTheCustomCart($product, $cart))
         {
-            $rowId = $this->findCartItemId($product, $cart);
+            $rowId = $this->findCartItemRowId($product, $cart);
 
             $this->removeFromCart($rowId, $cart);
         }
@@ -140,9 +143,7 @@ trait HasProduct
      */
     protected function itemIsInTheCustomCart($product, $cart)
     {
-        $item = $this->findCartItem($product, $cart);
-
-        return $item->isNotEmpty();
+        return $this->findCartItem($product, $cart)->isNotEmpty();
     }
 
     /**
@@ -154,18 +155,9 @@ trait HasProduct
      */
     protected function findCartItem($product, $cart = null)
     {
-        if($cart)
-        {
-            $item = Cart::instance($cart)->search(function ($cartItem, $rowId) use($product) {
-                return $cartItem->id === $product->id;
-            });
-        }
-        else
-        {
-            $item = Cart::search(function ($cartItem, $rowId) use($product) {
+        $item = Cart::instance($cart)->search(function ($cartItem, $rowId) use($product) {
                 return $cartItem->options->product_id === $product->id;
             });
-        }
 
         return $item;
     }
@@ -178,7 +170,7 @@ trait HasProduct
      * @param  string $attribute
      * @return int
      */
-    protected function findCartItemId($product, $cart, $attribute='rowId')
+    protected function findCartItemRowId($product, $cart, $attribute='rowId')
     {
         $item = $this->findCartItem($product, $cart)->toArray();
 
@@ -212,14 +204,7 @@ trait HasProduct
      */
     protected function findProducts($cartItems, $cart = null)
     {
-        if ($cart)
-        {
-            $products_ids = $cartItems->pluck('id');
-        }
-        else
-        {
-            $products_ids = $cartItems->pluck('options.product_id');
-        }
+        $products_ids = $cart ? $cartItems->pluck('id') : $cartItems->pluck('options.product_id');
 
         $products = Product::findMany($products_ids);
 
@@ -256,5 +241,22 @@ trait HasProduct
     protected function getCartItemType($cartItem, $type)
     {
         return $cartItem->options->type === $type;
+    }
+
+    /**
+     * Remove the item from the custom cart.
+     *
+     * @param  \App\Product $product
+     * @param  string $cart
+     * @return void
+     */
+    protected function removeFromTheCustomCart($product, $cart)
+    {
+        if($this->itemIsInTheCustomCart($product, $cart)) {
+
+            $rowId = $this->findCartItemRowId($product, $cart);
+
+            $this->removeFromCart($rowId, $cart);
+        }
     }
 }
