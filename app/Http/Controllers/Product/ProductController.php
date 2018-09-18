@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+    public $with = ['product.product_variants'];
+
     /**
      * Display a listing of the resource.
      *
@@ -16,7 +18,7 @@ class ProductController extends Controller
      */
     public function index(ProductFilters $filters)
     {
-        $products = Product::with('categories')->filter($filters)->paginate(3);
+        $products = Product::with('categories', 'product_variants.product')->filter($filters)->paginate(6);
 
         return view('products.index', compact('products'));
     }

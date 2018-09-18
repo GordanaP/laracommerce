@@ -7,7 +7,7 @@
 
     <!-- Price -->
     <span class="m-text17">
-        {{ $product->present_price }}
+        {{ $product->load('product_variants.product')->present_price }}
     </span>
 
     <!-- Description -->

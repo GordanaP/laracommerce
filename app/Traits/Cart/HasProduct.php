@@ -224,8 +224,8 @@ trait HasProduct
 
             $variant = $product->findVariant($data);
 
-            return $variant ? ($cartItem->id === $variant->id && $this->getCartItemType($cartItem, 'variant'))
-                            : ($cartItem->id === $product->id && $this->getCartItemType($cartItem, 'product'));
+            return $variant ? ($cartItem->id === $variant->id && $this->isCartItemType($cartItem, 'variant'))
+                            : ($cartItem->id === $product->id && $this->isCartItemType($cartItem, 'product'));
         });
 
         return $duplicates->isNotEmpty();
@@ -238,7 +238,7 @@ trait HasProduct
      * @param  string $type
      * @return boolean
      */
-    protected function getCartItemType($cartItem, $type)
+    protected function isCartItemType($cartItem, $type)
     {
         return $cartItem->options->type === $type;
     }

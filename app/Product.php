@@ -35,8 +35,6 @@ class Product extends Model implements Buyable
         return $this->belongsToMany(Category::class);
     }
 
-
-
     /**
      * Scope a query to only include related products.
      *
@@ -122,7 +120,7 @@ class Product extends Model implements Buyable
 
         if($prices)
         {
-            $price = $this->hasOnePrice($prices) ? $this->presentedPrices($this->price) : 'ab '. $this->presentedPrices($prices->min());
+            $price = $this->hasVariablePrice($prices) ? 'ab '. $this->presentedPrices($prices->min()) : $this->presentedPrices($this->price);
         }
         else
         {
@@ -134,8 +132,7 @@ class Product extends Model implements Buyable
 
     public function getVariantPrices()
     {
-        $prices = $this->product_variants->load('product')->pluck('price');
-        // $prices = $this->product_variants->load('product')->pluck('price');
+        $prices = $this->product_variants->pluck('price');
 
         return $prices;
     }
@@ -145,13 +142,13 @@ class Product extends Model implements Buyable
         return presentCurrency() . $price;
     }
 
-    public function hasOnePrice($prices)
+    public function hasVariablePrice($prices)
     {
         $filtered = $prices->filter(function($price) {
                 return $price != $this->price;
             });
 
-        return $filtered->isEmpty();
+        return $filtered->isNotEmpty();
     }
 
     public function getVariant()
