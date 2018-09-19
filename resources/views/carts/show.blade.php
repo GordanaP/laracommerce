@@ -192,6 +192,10 @@
                     success: function(response)
                     {
                         window.location.href = "{{ route('carts.show') }}"
+                    },
+                    error: function(response)
+                    {
+                        errorResponse(getJsonErrors(response))
                     }
                 });
             });

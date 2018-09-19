@@ -23,11 +23,11 @@ class ExistsInProductSizes implements Rule
      *
      * @param  string  $attribute
      * @param  mixed  $value
-     * @return bool
+     * @return boolean
      */
     public function passes($attribute, $value)
     {
-        $sizes = $this->product->sizes->unique()->pluck('id');
+        $sizes = $this->product->collectAttributeValues('size_id');
 
         return $sizes->contains($value);
     }

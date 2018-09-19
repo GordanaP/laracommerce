@@ -8,18 +8,18 @@ class BelongsToProductSize implements Rule
 {
     protected $product;
 
-    protected $size;
+    protected $size_id;
 
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct($product, $size)
+    public function __construct($product, $size_id)
     {
         $this->product = $product;
 
-        $this->size = $size;
+        $this->size_id = $size_id;
     }
 
     /**
@@ -31,14 +31,13 @@ class BelongsToProductSize implements Rule
      */
     public function passes($attribute, $value)
     {
-        $product_id = $this->product->id;
-        $size_id = $this->size;
+        $variant = $this->product->product_variants
+            ->where('product_id', $this->product->id)
+            ->where('size_id', $this->size_id)
+            ->where('color_id', $value)
+            ->first();
 
-        $products = \App\Product::whereHas('sizes', function ($q) use ($product_id, $size_id, $value) {
-            $q->where('product_id', $product_id)->where('size_id', $size_id)->where('color_id', $value);
-        })->get();
-
-        return sizeof($products) > 0;
+        return optional($variant)->exists;
     }
 
     /**

@@ -31,11 +31,15 @@
 
     <!-- Update Qty -->
     <td class="column-5">
-        <input type="text" class="border border-grey text-center w-12 pt-2 pb-2" name="quantity" id="quantity" value="{{ $item->qty }}" data-id="{{ $item->rowId }}" />
+        <div>
+            <input type="text" class="border border-grey text-center w-12 pt-2 pb-2 quantity" name="quantity" id="quantity" value="{{ $item->qty }}" data-id="{{ $item->rowId }}" />
 
-        <button class="update-qty-btn">
-            <i class="fa fa-refresh bg-black text-white text-xl px-2 py-2"></i>
-        </button>
+            <button class="update-qty-btn">
+                <i class="fa fa-refresh bg-black text-white text-xl px-2 py-2"></i>
+            </button>
+        </div>
+
+        <span class="invalid-feedback text-xs quantity "></span>
     </td>
 
     <!-- Product subtotal -->

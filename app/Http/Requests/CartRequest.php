@@ -30,13 +30,11 @@ class CartRequest extends FormRequest
             'size_id' => [
                 'sometimes',
                 'required',
-                'integer',
                 new ExistsInProductSizes($this->product)
             ],
             'color_id' => [
                 'sometimes',
                 'required',
-                'integer',
                 new BelongsToProductSize($this->product, $this->size_id)
             ],
             'quantity' => 'required|integer|min:1|max:5'

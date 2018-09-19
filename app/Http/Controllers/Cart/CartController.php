@@ -35,11 +35,11 @@ class CartController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\CartRequest  $request
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Product $product)
+    public function store(CartRequest $request, Product $product)
     {
         if($this->cartHasDuplicates($product, $request))
         {
@@ -81,11 +81,11 @@ class CartController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Http\Requests\CartRequest  $request
      * @param  int  $rowId
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $rowId)
+    public function update(CartRequest $request, $rowId)
     {
         $this->updateCart($rowId, $request->quantity);
 

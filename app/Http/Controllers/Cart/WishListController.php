@@ -32,7 +32,7 @@ class WishListController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, Product $product)
+    public function store(Product $product)
     {
         $this->toggleWishList($product, config('constants.wishcart'));
 

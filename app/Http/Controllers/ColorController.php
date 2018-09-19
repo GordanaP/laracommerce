@@ -21,8 +21,8 @@ class ColorController extends Controller
 
         if(request()->ajax()){
             return response([
-                // 'colors' => Color::whereIn('id', $request->colors_ids)->get(),
-                'view' => $view
+                'view' => $view,
+                'colors' => $colors
             ]);
         }
     }
